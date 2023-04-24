@@ -3,7 +3,6 @@ package backend.backend.services;
 import java.util.List;
 import java.util.Optional;
 
-import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +19,9 @@ public class DatabaseService {
     private SQLRepository sqlRepository;
     @Autowired
     private MongoRepository mongoRepo;
+    
+    @Autowired
+    private MailService emailSvc;
 
     
     public Optional<UserLogin> findUserByEmail(String email) {
@@ -28,6 +30,10 @@ public class DatabaseService {
 
     public void registerUser(UserLogin user) {
         sqlRepository.registerUser(user);
+        String subject = "ExpenseTracker Register success";
+        String message = "Thank you for the support!";
+
+        emailSvc.sendEmail(user.getEmail(), subject, message);
     }
 
     @Transactional
@@ -51,7 +57,10 @@ public class DatabaseService {
 
     public List<Transactions> getAllTransactionsByGroupAndEmail(String email, String groupName) {
         return mongoRepo.getAllTransactions(groupName, email);
+    }
 
+    public void deleteTransaction(String transactionID) {
+        mongoRepo.deleteTransaction(transactionID);
     }
 
     // public List<Document> getDistinctCategories(String groupName) {

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import backend.backend.models.ExpenseAccount;
 import backend.backend.models.Transactions;
 import backend.backend.models.UserLogin;
 import backend.backend.services.DatabaseService;
+import backend.backend.services.MailService;
 import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObject;
@@ -26,6 +28,10 @@ public class ExpenseController {
     
     @Autowired
     private DatabaseService databaseSvc;
+
+    @Autowired
+    private MailService mailSvc;
+
 
     @PostMapping(path = "/testpath")
     public ResponseEntity<String> testPath(){
@@ -102,37 +108,45 @@ public class ExpenseController {
         .forEach(txn -> {
             arrBuilder.add(txn.toJson());
         });
-        
-        // JsonObject message = Json.createObjectBuilder()
-        //     .add("message", "success")
-        //     .build();
-
         return ResponseEntity.ok().body(arrBuilder.build().toString());
     }
 
-    // @GetMapping(path = "/email")
-    // public ResponseEntity<String> testEmail(@RequestBody UserLogin user){
+    @DeleteMapping(path = "/deletetransaction")
+    public ResponseEntity<String> deleteTransaction(@RequestParam String transactionID){
 
-    //     try {
-    //         gmailSvc.sendMail(
-    //         "Updates", 
-    //         """
-    //         Dear User,
+        databaseSvc.deleteTransaction(transactionID);
+        JsonObject message = Json.createObjectBuilder()
+            .add("message", "deleted!")
+            .build();
 
-    //         Thank you for using this app.
-            
-    //         Best Regards,
-    //         ExpenseTracker
-    //         """,
-    //         user);
-    //     } catch (Exception e){
-    //         System.out.println(e.getStackTrace());
-    //         return ResponseEntity.internalServerError().build();
-    //     }
-    //     JsonObject message = Json.createObjectBuilder()
-    //         .add("message", "Email sent to" + user.getEmail())
-    //         .build();
+        return ResponseEntity.ok().body(message.toString());
+    }
 
-    //     return ResponseEntity.ok().body(message.toString());
-    // }
+    @PostMapping(path = "/upload")
+    public ResponseEntity<String> upload(@RequestBody Transactions txn){
+
+        databaseSvc.addTransaction(txn);
+        JsonObject message = Json.createObjectBuilder()
+            .add("message", "success")
+            .build();
+
+        return ResponseEntity.ok().body(message.toString());
+    }
+
+    @GetMapping(path = "/email")
+    public ResponseEntity<String> email(@RequestParam String email){
+
+        // databaseSvc.addTransaction(txn);
+        // JsonObject message = Json.createObjectBuilder()
+        //     .add("message", "success")
+        //     .build();
+        
+        String subject = "ExpenseTracker Register success";
+        String message = "Thank you for the support!";
+
+        mailSvc.sendEmail(email, subject, message);
+
+        return ResponseEntity.ok().body(message.toString());
+    }
+
 }

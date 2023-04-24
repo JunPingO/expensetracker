@@ -26,8 +26,8 @@ public class SecurityConfig {
             .disable()
             .authorizeHttpRequests()
             .requestMatchers("/api/auth/**", "/**", "/index.html", "/", "/3rdpartylicenses.txt", "/favicon.ico",
-                "/main.fa3597ffab10373b.js", "/polyfills.be126616119fee81.js","/runtime.7ae29a296d479790.js",
-                "/scripts.b7cebc1258dbcca8.js","/styles.7a21ac1018e81662.css","/manifest.json", "/images/**")
+                "/main.13f963abea6ced91.js", "/polyfills.794d7387aea30963.js","/runtime.1eef65174679b3b8.js",
+                "/styles.e06a9809e0fa01f5.css","/manifest.json", "/images/**")
             .permitAll()
             .anyRequest()
             .authenticated()
